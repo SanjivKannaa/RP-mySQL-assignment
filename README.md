@@ -1,3 +1,11 @@
+# Run terraform script to get EC2 instances
+
+```
+terraform init
+terraform apply
+```
+
+
 # 1. Install MySQL on machine 1
 
 ```
@@ -143,7 +151,7 @@ sudo systemctl restart mysql
 ##### Now create a new user to handle replicaiton
 ```
 CREATE USER 'replica_user'@'<ip_address_of_slave_node>' IDENTIFIED WITH mysql_native_password BY 'password';
-GRANT REPLICATION SLAVE ON departments.* TO 'replica_user'@'<ip_address_of_slave_node>';
+GRANT REPLICATION SLAVE ON *.* TO 'replica_user'@'<ip_address_of_slave_node>';
 ```
 
 ##### NOTE: 
@@ -263,6 +271,28 @@ copy it to slave
 restore into slave node
 
 ``` source backup.sql; ```
+
+
+# 14. ​Setup RDS on AWS account (free tier) and connect to it via ec2/personal system
+
+Done using AWS console, launched an EC2 instance and connected to RDS instnace using mycli tool.
+
+
+# 15. ​Set Up an ec2 instance (free tier) and install MySQL using Generic binaries(link)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
