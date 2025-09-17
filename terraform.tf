@@ -47,7 +47,7 @@ resource "aws_security_group" "mysql_sg" {
 
 # EC2 Instance
 resource "aws_instance" "mysql_1" {
-  ami           = "ami-0b5317ee10bd261f7" # Debian 13
+  ami           = "ami-07f07a6e1060cd2a8" # Ubuntu 22
   instance_type = "t2.micro"
   subnet_id     = element(data.aws_subnets.default.ids, 0)
   vpc_security_group_ids = [aws_security_group.mysql_sg.id]
@@ -59,7 +59,7 @@ resource "aws_instance" "mysql_1" {
 }
 
 resource "aws_instance" "mysql_2" {
-  ami           = "ami-0b5317ee10bd261f7" # Debian 13
+  ami           = "ami-07f07a6e1060cd2a8" # Ubuntu 22
   instance_type = "t2.micro"
   subnet_id     = element(data.aws_subnets.default.ids, 0)
   vpc_security_group_ids = [aws_security_group.mysql_sg.id]
