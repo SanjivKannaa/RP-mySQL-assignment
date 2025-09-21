@@ -281,7 +281,108 @@ Done using AWS console, launched an EC2 instance and connected to RDS instnace u
 # 15. ​Set Up an ec2 instance (free tier) and install MySQL using Generic binaries(link)
 
 
+# 16. ​Explore use case of my.cnf in MySQL, learn important parameters of MySQL(link, link)
 
+ my.conf is a configuration file that has information about:
+
+1. Memory Allocation
+   - innodb_buffer_pool_size
+   - query_cache_size (for query repetetion, depreciated -> slows down sys in write-heavy scenario)
+   - key_buffer_size (memory buffer of MyISAM)
+
+2. Logging
+   - general_log, general_log_file
+   - slow_query_log, slow_query_log_file
+   - log_error
+
+3. Networking
+   - bind-address
+   - max_connections
+   - wait_timeout
+
+4. Authentication & Security
+   - skip-networking
+   - ssl-ca, ssl-cert, ssl-key
+
+5. Performance Tuning
+   - innodb_flush_log_at_trx_commit
+   - tmp_table_size
+   - thread_cache_size
+
+It uses INI style formating (like in ansible's inventory.ini). The common sections are: 
+1. client -> every action my client tools (mysql, mycli, mysqldump, mysqladmin)
+2. mysqld -> memory, cache, network, etc
+3. mysqld_saf3 -> logging, crash recovery, etc
+4. mysqldump
+5. mysqladmin
+
+
+# 17. ​Try to change parameter values on MySQL install on ec2 and observe behavior Change the setting of innodb_file_per_table from 1 (default) to 0 and observe the changes ( Ketan Shridhar Kolte has added)
+
+
+# 18.​ Try to go through the binary files created and try to read the transaction in the bin log (Ketan Shridhar Kolte has added)
+
+
+# 19. ​Learn about User creation options and meaning of all the privileges : 
+###### docs: https://dev.mysql.com/doc/refman/8.0/en/account-management-statements.html
+
+User creation options:
+1. ALTER USER Statement
+2. CREATE ROLE Statement
+3. CREATE USER Statement
+4. DROP ROLE Statement
+5. DROP USER Statement
+6. GRANT Statement
+7. RENAME USER Statement
+8. REVOKE Statement
+9. SET DEFAULT ROLE Statement
+10. SET PASSWORD Statement
+11. SET ROLE Statement
+
+
+
+# 20. ​Explore mysql.user table.
+
+the central table in MySQL that stores all user accounts and their privileges. 
+
+Purpose of mysql.user
+1. Stores users and host combinations that can connect to MySQL.
+2. Defines privileges.
+3. Stores authentication information (passwords, plugins, SSL requirements).
+4. Manages account limitations (max connections, password expiration, etc.).
+
+
+# 21. ​Explore all system databases in MySQL (mysql, information_schema,sys,performance_schema)
+
+Default DBs created my mysql:
+1. mysql -> store information needed by the mySQL server (users and privilages, stored procedure, functions, plugins and server conf)
+2. information_schema -> store info/metadata about other DBs (db, table, indexes, triggers, contraints, privileges)
+3. performance_schema -> low-level monitoring
+4. sys -> abstraction layer over performance_schema (makes performance_schema's data easier to read)
+
+
+# 22. ​With sample permission, give respective permission to the user and check if you are able to do the operation. Also try other operations and note the errors you get and understand the error meanings. Eg. If you give select permissions, check if you are able to select data and execute insert,update etc and note the errors you get
+
+
+# 23. ​Setup replication b/w 2 machines, learn about how to setup replication on existing live running MySQL(writes are coming) using point in time recovery (MySQL dump)(link, link,link,Procedure to setup replication)
+
+
+# 24. ​Show MASTER STATUS (Replication architecture)
+
+
+# 25. ​SHOW SLAVE STATUS \\G cover all points;26.​Setup replication on the running system when sysbench is running. Setup and run sysbench on machine 1 and let it run on terminal 1. Then once its running setup replication from machine 1(use new terminal and let sysbench running on another terminal) to machine 2
+
+
+# 27. ​AWS RDS Architecture Overview (In MySQL context), Usecase of RDS, Difference in RDS vs physical Databases, Features, Parameter Groups, Backups(snapshots), Multi-AZ, Failover, Replication
+
+
+# 28. ​Hands on RDS
+
+
+# 29. ​Prepared state is pending (sync_binlog =1 crash recovery)
+
+
+# 30. ​Locking in DB
 
 
 
