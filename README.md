@@ -363,6 +363,28 @@ Default DBs created my mysql:
 
 # 22. ​With sample permission, give respective permission to the user and check if you are able to do the operation. Also try other operations and note the errors you get and understand the error meanings. Eg. If you give select permissions, check if you are able to select data and execute insert,update etc and note the errors you get
 
+```
+mysql -u root -p
+```
+
+```
+create user 'jsk'@'%';
+create database jsk;
+grant select on jsk.* to 'jsk'@'%';
+create table jsk (id int);
+insert into jsk values (1);
+exit;
+```
+
+```
+mysql -u jsk -p
+```
+
+``` select * from jsk; ``` -> runs without error
+
+``` insert into jsk values (1); ``` -> returns the below error
+``` ERROR 1142 (42000): INSERT command denied to user 'jsk'@'localhost' for table 'jsk' ```
+
 
 # 23. ​Setup replication b/w 2 machines, learn about how to setup replication on existing live running MySQL(writes are coming) using point in time recovery (MySQL dump)(link, link,link,Procedure to setup replication)
 
@@ -370,7 +392,10 @@ Default DBs created my mysql:
 # 24. ​Show MASTER STATUS (Replication architecture)
 
 
-# 25. ​SHOW SLAVE STATUS \\G cover all points;26.​Setup replication on the running system when sysbench is running. Setup and run sysbench on machine 1 and let it run on terminal 1. Then once its running setup replication from machine 1(use new terminal and let sysbench running on another terminal) to machine 2
+# 25. ​SHOW SLAVE STATUS \\G cover all points
+
+
+# 26.​Setup replication on the running system when sysbench is running. Setup and run sysbench on machine 1 and let it run on terminal 1. Then once its running setup replication from machine 1(use new terminal and let sysbench running on another terminal) to machine 2
 
 
 # 27. ​AWS RDS Architecture Overview (In MySQL context), Usecase of RDS, Difference in RDS vs physical Databases, Features, Parameter Groups, Backups(snapshots), Multi-AZ, Failover, Replication
