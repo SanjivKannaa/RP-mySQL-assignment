@@ -40,6 +40,9 @@ exit;
 mysql -u jsk --password=jsk
 ```
 
+
+
+
 ```
 use employees;
 CREATE TABLE staff (
@@ -153,8 +156,8 @@ sudo systemctl restart mysql
 
 ##### Now create a new user to handle replicaiton
 ```
-CREATE USER 'replica_user'@'<ip_address_of_slave_node>' IDENTIFIED WITH mysql_native_password BY 'password';
-GRANT REPLICATION SLAVE ON *.* TO 'replica_user'@'<ip_address_of_slave_node>';
+CREATE USER 'replica_user'@'%' IDENTIFIED WITH mysql_native_password BY 'password';
+GRANT REPLICATION SLAVE ON *.* TO 'replica_user'@'%';
 ```
 
 ##### NOTE: 
@@ -310,40 +313,90 @@ note ==> set the location of mysql.sock file ... and other conf stuff also
 
 
 
-# 16. ​Explore use case of my.cnf in MySQL, learn important parameters of MySQL(link, link)
+# 16. ​Explore use case of my.cnf in MySQL, learn important parameters of MySQL.
+ref -> https://www.youtube.com/watch?v=0CqMv0ucqFA, https://copyprogramming.com/howto/where-is-percona-s-my-cnf-file
 
- my.conf is a configuration file that has information about:
 
-1. Memory Allocation
-   - innodb_buffer_pool_size
-   - query_cache_size (for query repetetion, depreciated -> slows down sys in write-heavy scenario)
-   - key_buffer_size (memory buffer of MyISAM)
+```
+#
+# The MySQL database server configuration file.
+#
+# One can use all long options that the program supports.
+# Run program with --help to get a list of available options and with
+# --print-defaults to see which it would actually understand and use.
+#
+# For explanations see
+# http://dev.mysql.com/doc/mysql/en/server-system-variables.html
 
-2. Logging
-   - general_log, general_log_file
-   - slow_query_log, slow_query_log_file
-   - log_error
+# Here is entries for some specific programs
+# The following values assume you have at least 32M ram
 
-3. Networking
-   - bind-address
-   - max_connections
-   - wait_timeout
+[mysqld]
+#
+# * Basic Settings
+#
+user		= mysql
+# pid-file	= /var/run/mysqld/mysqld.pid
+# socket	= /var/run/mysqld/mysqld.sock
+# port		= 3306
+# datadir	= /var/lib/mysql
 
-4. Authentication & Security
-   - skip-networking
-   - ssl-ca, ssl-cert, ssl-key
 
-5. Performance Tuning
-   - innodb_flush_log_at_trx_commit
-   - tmp_table_size
-   - thread_cache_size
+# If MySQL is running as a replication slave, this should be
+# changed. Ref https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html#sysvar_tmpdir
+# tmpdir		= /tmp
+#
+# Instead of skip-networking the default is now to listen only on
+# localhost which is more compatible and is not less secure.
+bind-address		= 127.0.0.1
+mysqlx-bind-address	= 127.0.0.1
+#
+# * Fine Tuning
+#
+key_buffer_size		= 16M
+# max_allowed_packet	= 64M
+# thread_stack		= 256K
 
-It uses INI style formating (like in ansible's inventory.ini). The common sections are: 
-1. client -> every action my client tools (mysql, mycli, mysqldump, mysqladmin)
-2. mysqld -> memory, cache, network, etc
-3. mysqld_saf3 -> logging, crash recovery, etc
-4. mysqldump
-5. mysqladmin
+# thread_cache_size       = -1
+
+# This replaces the startup script and checks MyISAM tables if needed
+# the first time they are touched
+myisam-recover-options  = BACKUP
+
+# max_connections        = 151
+
+# table_open_cache       = 4000
+
+#
+# * Logging and Replication
+#
+# Both location gets rotated by the cronjob.
+#
+# Log all queries
+# Be aware that this log type is a performance killer.
+# general_log_file        = /var/log/mysql/query.log
+# general_log             = 1
+#
+# Error log - should be very few entries.
+#
+log_error = /var/log/mysql/error.log
+#
+# Here you can see queries with especially long duration
+# slow_query_log		= 1
+# slow_query_log_file	= /var/log/mysql/mysql-slow.log
+# long_query_time = 2
+# log-queries-not-using-indexes
+#
+# The following can be used as easy to replay backup logs or for replication.
+# note: if you are setting up a replication slave, see README.Debian about
+#       other settings you may need to change.
+# server-id		= 1
+# log_bin			= /var/log/mysql/mysql-bin.log
+# binlog_expire_logs_seconds	= 2592000
+max_binlog_size   = 100M
+# binlog_do_db		= include_database_name
+# binlog_ignore_db	= include_database_name
+```
 
 
 # 17. ​Try to change parameter values on MySQL install on ec2 and observe behavior Change the setting of innodb_file_per_table from 1 (default) to 0 and observe the changes ( Ketan Shridhar Kolte has added)
@@ -641,7 +694,7 @@ Purpose of mysql.user
 
 Default DBs created my mysql:
 1. mysql -> store information needed by the mySQL server (users and privilages, stored procedure, functions, plugins and server conf)
-2. information_schema -> store info/metadata about other DBs (db, table, indexes, triggers, contraints, privileges)
+2. information_schema -> store info/metadata about other DBs (db, table, indexes, triggers, contraints)
 3. performance_schema -> low-level monitoring
 4. sys -> abstraction layer over performance_schema (makes performance_schema's data easier to read)
 
@@ -782,23 +835,32 @@ Master_SSL_Verify_Server_Cert: No
 
 #### Usecase of RDS
 
-- Scalability: RDS is designed to handle varying workloads, allowing to easily scale compute and storage resources up or down.
-- Managed Service: It automates administrative tasks like infra provisioning, DB installation, patching, and backups, allowing to focus on application development.
-- Cost-Effectiveness: You only pay for the resources you use, and RDS offers different instance types and pricing models (e.g., On-Demand, Reserved Instances) to optimize costs.
+- Managed Service: Automates tedious administrative tasks like infrastructure provisioning, database installation, patching, and backups
+- Cost-Effectiveness: Options like On-Demand and Reserved Instances help optimize your spending
+- Scalability: Effortlessly handle growing or fluctuating workloads by easily scaling your compute and storage resources up or down
 
 #### Difference between RDS vs. Physical Databases
 
-- Physical Databases: Require manual management of the underlying infrastructure, including the server, operating system, and database software. This means you are responsible for everything from hardware failure to security patches.
-- RDS: An RDS instance is a managed service. You don't have to worry about the underlying server or OS. AWS handles the maintenance, security, and availability of the database, providing a "hands-off" approach to database management.
+- Physical Databases: Require manual management of the underlying infrastructure, including the server, operating system, and database software
+- RDS: An RDS instance is a managed service. You don't have to worry about the underlying server or OS. AWS handles the maintenance, security, and availability of the database
 
 
 #### Important Features
 
-- Parameter Groups: A way to contain configuration values that are applied to DB instances. You can use these to manage settings like character sets, buffer sizes, and timeouts.
-- Backups (Snapshots): RDS automatically creates and stores backups of your DB instance. You can also manually create snapshots at any time. These backups are stored in Amazon S3 and can be used to restore your database to a specific point in time.
-- Multi-AZ Deployment: This provides enhanced availability and durability for your DB instance. When you create a Multi-AZ deployment, RDS automatically provisions and maintains a synchronous standby replica in a different Availability Zone (AZ). In the event of a failure, RDS automatically fails over to the standby.
+- Parameter Groups: A way to contain configuration values that are applied to DB instances
+- Backups (Snapshots): RDS automatically creates and stores ( increamental ) backups of your DB instance and stored in S3
+- Multi-AZ Deployment: When you create a Multi-AZ deployment, RDS automatically provisions and maintains a synchronous standby replica in a different Availability Zone. In the event of a failure, RDS automatically fails over to the standby.
 - Failover: The automatic process of switching from the primary database instance to the standby replica in a Multi-AZ deployment. This happens seamlessly and with minimal downtime in case of an outage.
-- Replication: RDS supports creating one or more read replicas from a source DB instance. Read replicas are asynchronous copies that are used to offload read traffic from the primary instance, improving the performance of read-heavy applications. This is a key component for scaling your application's read throughput.
+- Replication: RDS supports creating read replicas from source DB instance
+
+
+#### Stuff to learn
+- DB instances vs cluster
+- manual vs automated
+- event subs?
+- option groups
+- subnet... groups??
+- 
 
 
 
@@ -806,19 +868,34 @@ Master_SSL_Verify_Server_Cert: No
 
 
 # 29. ​Prepared state is pending (sync_binlog =1 crash recovery)
+sync_binlog = 0
+- The transactions are written to binlog and kept in-memory, and pushed to disk in batch
+- When the server fails, the binlog data that wasnt pushed to disk will be lost
+
+sync_binlog = 1
+- Pushed to disk after each transaction
+- Can slightly decrease perf, but needed for data integrity
 
 
 # 30. ​Locking in DB
 
-Types of Locks
+
+Types of Locks:
 1. Shared Locks (Read Locks): Allows multiple transactions to read data simultaneously. Prevents other transactions from writing.
 2. Exclusive Locks (Write Locks): Grants a single transaction exclusive access to data, preventing all other transactions from reading or writing it.
 
-Locking Granularity
-1. Table-Level: Locks the entire table. Reduces concurrency.
+Locking Levels:
+1. Database level: 
+1. Table-Level: Locks the entire table. Reduces concurrency. -> used by myISAM
 2. Row-Level: Locks only the specific rows being accessed. Provides the highest concurrency and is used by engines like InnoDB.
 
-
+Locking Protocols:
+1. Simple shared and explusive locking proto
+2. 2 Phase locking proto (grow, shrink)
+    - basic        ->  locks can be released anytime in shrinking phase -> can lead to cascading rollback
+    - strict       ->  X held till commit/rollback -> prone to deadlock
+    - rigorous     ->  S,X held till commit/rollback -> prone to deadlock
+    - conservative ->  all locks to be obtained before start of exec -> low concurrency
 
 
 
